@@ -44,6 +44,7 @@ function start() {
                 break;
             case "View employees":
                 console.log(answer.selectTask)
+                viewEmployees();
                 break;
             case "Update employee role":
                 console.log(answer.selectTask)
@@ -64,6 +65,13 @@ function viewDepartments(){
 
 function viewRoles(){
     connection.query("SELECT title, salary, department_id FROM roles", function(err, results){
+        if (err) throw err;
+        console.table(results);
+    })
+};
+
+function viewEmployees(){
+    connection.query("SELECT first_name, last_name, role_id, manager_id FROM employees", function(err, results){
         if (err) throw err;
         console.table(results);
     })
