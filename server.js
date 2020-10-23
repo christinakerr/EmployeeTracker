@@ -40,6 +40,7 @@ function start() {
                 break;
             case "View roles":
                 console.log(answer.selectTask)
+                viewRoles();
                 break;
             case "View employees":
                 console.log(answer.selectTask)
@@ -59,4 +60,11 @@ function viewDepartments(){
         if (err) throw err;
         console.table(results);
     })
-}
+};
+
+function viewRoles(){
+    connection.query("SELECT title, salary, department_id FROM roles", function(err, results){
+        if (err) throw err;
+        console.table(results);
+    })
+};
