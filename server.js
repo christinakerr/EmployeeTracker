@@ -36,6 +36,7 @@ function start() {
                 break;
             case "View departments":
                 console.log(answer.selectTask)
+                viewDepartments();
                 break;
             case "View roles":
                 console.log(answer.selectTask)
@@ -50,5 +51,12 @@ function start() {
                 connection.end();
         }
         console.log(answer.selectTask);
+    })
+}
+
+function viewDepartments(){
+    connection.query("SELECT name FROM departments", function(err, results){
+        if (err) throw err;
+        console.table(results);
     })
 }
