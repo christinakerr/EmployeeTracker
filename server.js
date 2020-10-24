@@ -26,40 +26,39 @@ function start() {
     }]).then(function (answer) {
         switch (answer.selectTask){
             case "Add department":
-                console.log(answer.selectTask)
+                addDepartment();
                 break;
             case "Add role":
-                console.log(answer.selectTask)
+
                 break;
             case "Add employee":
-                console.log(answer.selectTask)
+
                 break;
             case "View departments":
-                console.log(answer.selectTask)
                 viewDepartments();
                 break;
             case "View roles":
-                console.log(answer.selectTask)
                 viewRoles();
                 break;
             case "View employees":
-                console.log(answer.selectTask)
                 viewEmployees();
                 break;
             case "Update employee role":
-                console.log(answer.selectTask)
+
                 break;
             case "Quit":
                 connection.end();
-        }
-        console.log(answer.selectTask);
+        };
     })
 }
 
+
+// VIEW FUNCTIONS -------------------------------------------------------------
 function viewDepartments(){
     connection.query("SELECT name FROM departments", function(err, results){
         if (err) throw err;
         console.table(results);
+        start();
     })
 };
 
@@ -67,12 +66,30 @@ function viewRoles(){
     connection.query("SELECT title, salary, department_id FROM roles", function(err, results){
         if (err) throw err;
         console.table(results);
+        start();
     })
 };
 
 function viewEmployees(){
-    connection.query("SELECT first_name, last_name, role_id, manager_id FROM employees", function(err, results){
+    connection.query("SELECT employees.id, first_name, last_name, title, salary FROM employees INNER JOIN roles ON employees.role_id=roles.id", function(err, results){
         if (err) throw err;
         console.table(results);
+        start();
     })
 };
+
+// ADD FUNCTIONS --------------------------------------------------------------
+
+async function addDepartment(){
+    const department = await inquirer.prompt([
+        {
+            name: "departmentName",
+            type: "input",
+            message: "Department name: "
+        }
+    ])
+    connection.query("INSERT INTO departments (name) VALUES (?)", [department.departmentName], (err, data) => {
+        if (err) throw err;
+        viewDepartments();
+    })
+}
