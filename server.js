@@ -24,12 +24,12 @@ function start() {
         message: "What would you like to do?",
         choices: ["Add department", "Add role", "Add employee", "View departments", "View roles", "View employees", "Update employee role", "Quit"]
     }]).then(function (answer) {
-        switch (answer.selectTask){
+        switch (answer.selectTask) {
             case "Add department":
                 addDepartment();
                 break;
             case "Add role":
-
+                addRole();
                 break;
             case "Add employee":
 
@@ -54,24 +54,24 @@ function start() {
 
 
 // VIEW FUNCTIONS -------------------------------------------------------------
-function viewDepartments(){
-    connection.query("SELECT name FROM departments", function(err, results){
+function viewDepartments() {
+    connection.query("SELECT name FROM departments", function (err, results) {
         if (err) throw err;
         console.table(results);
         start();
     })
 };
 
-function viewRoles(){
-    connection.query("SELECT title, salary, department_id FROM roles", function(err, results){
+function viewRoles() {
+    connection.query("SELECT title, salary, department_id FROM roles", function (err, results) {
         if (err) throw err;
         console.table(results);
         start();
     })
 };
 
-function viewEmployees(){
-    connection.query("SELECT employees.id, first_name, last_name, title, salary FROM employees INNER JOIN roles ON employees.role_id=roles.id", function(err, results){
+function viewEmployees() {
+    connection.query("SELECT employees.id, first_name, last_name, title, salary FROM employees INNER JOIN roles ON employees.role_id=roles.id", function (err, results) {
         if (err) throw err;
         console.table(results);
         start();
@@ -80,7 +80,7 @@ function viewEmployees(){
 
 // ADD FUNCTIONS --------------------------------------------------------------
 
-async function addDepartment(){
+async function addDepartment() {
     const department = await inquirer.prompt([
         {
             name: "departmentName",
@@ -91,5 +91,44 @@ async function addDepartment(){
     connection.query("INSERT INTO departments (name) VALUES (?)", [department.departmentName], (err, data) => {
         if (err) throw err;
         viewDepartments();
+    })
+}
+
+async function addRole() {
+    const departments = await new Promise(resolve => {
+        connection.query("SELECT * FROM departments", (err, data) => {
+            if (err) throw err;
+            resolve(data);
+        })
+    })
+    let departmentNames = [];
+    departments.forEach(element => {
+        departmentNames.push(element.name);
+    })
+    console.log(departments);
+    console.log(departmentNames);
+    const newRole = await inquirer.prompt([
+        {
+            name: "roleTitle",
+            type: "input",
+            message: "Role title: "
+        },
+        {
+            name: "roleSalary",
+            type: "input",
+            message: "Role salary: "
+        },
+        {
+            name: "roleDepartment",
+            type: "list",
+            message: "Role department: ",
+            choices: departmentNames
+        },
+    ])
+    console.log(newRole.roleDepartment)
+    const index = departmentNames.indexOf(newRole.roleDepartment);
+    connection.query("INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)", [newRole.roleTitle, newRole.roleSalary, departments[index].id], (err, data) => {
+        if (err) throw err;
+        viewRoles();
     })
 }
