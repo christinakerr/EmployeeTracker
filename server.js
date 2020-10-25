@@ -32,7 +32,7 @@ function start() {
                 addRole();
                 break;
             case "Add employee":
-
+                addEmployee();
                 break;
             case "View departments":
                 viewDepartments();
@@ -80,7 +80,7 @@ function viewEmployees() {
 
 // ADD FUNCTIONS --------------------------------------------------------------
 
-async function addDepartment() {
+async function addDepartment() {                   // ADD DEPARTMENT
     const department = await inquirer.prompt([
         {
             name: "departmentName",
@@ -94,7 +94,7 @@ async function addDepartment() {
     })
 }
 
-async function addRole() {
+async function addRole() {                               // ADD ROLE
     const departments = await new Promise(resolve => {
         connection.query("SELECT * FROM departments", (err, data) => {
             if (err) throw err;
@@ -105,8 +105,6 @@ async function addRole() {
     departments.forEach(element => {
         departmentNames.push(element.name);
     })
-    console.log(departments);
-    console.log(departmentNames);
     const newRole = await inquirer.prompt([
         {
             name: "roleTitle",
@@ -125,10 +123,75 @@ async function addRole() {
             choices: departmentNames
         },
     ])
-    console.log(newRole.roleDepartment)
     const index = departmentNames.indexOf(newRole.roleDepartment);
     connection.query("INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)", [newRole.roleTitle, newRole.roleSalary, departments[index].id], (err, data) => {
         if (err) throw err;
         viewRoles();
+    })
+}
+
+async function addEmployee() {                         // ADD EMPLOYEE
+    const roles = await new Promise(resolve => {
+        connection.query("SELECT * FROM roles", (err, data) => {
+            if (err) throw err;
+            resolve(data);
+        })
+    })
+    const managers = await new Promise(resolve => {
+        connection.query("SELECT * FROM employees", (err, data) => {
+            if (err) throw err;
+            resolve(data);
+        })
+    })
+    let roleNames = [];
+    let employeeNames = [];
+    roles.forEach(element => {
+        roleNames.push(element.title);
+    });
+    managers.forEach(element => {
+        employeeNames.push(element.first_name + " " + element.last_name);
+    });
+    employeeNames.push("N/A");
+    console.log(roleNames, employeeNames);
+    const newEmployee = await inquirer.prompt([
+        {
+            name: "firstName",
+            type: "input",
+            message: "First Name: "
+        },
+        {
+            name: "lastName",
+            type: "input",
+            message: "Last Name: "
+        },
+        {
+            name: "role",
+            type: "list",
+            message: "Role: ",
+            choices: roleNames
+        },
+        {
+            name: "manager",
+            type: "list",
+            message: "Manager: ",
+            choices: employeeNames
+        },
+    ])
+    console.log(newEmployee);
+    const roleIndex = roleNames.indexOf(newEmployee.role);
+    const managerIndex = employeeNames.indexOf(newEmployee.manager);
+    console.log(roleIndex, managerIndex);
+
+    let manager;
+
+    if (newEmployee.manager === "N/A"){
+        manager = null;
+    } else {
+        manager = managers[managerIndex].id;
+    };
+
+    connection.query("INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [newEmployee.firstName, newEmployee.lastName, roles[roleIndex].id, manager], (err, data) => {
+        if (err) throw err;
+        viewEmployees();
     })
 }
