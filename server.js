@@ -44,7 +44,7 @@ function start() {
                 viewEmployees();
                 break;
             case "Update employee role":
-
+                updateEmployeeRole();
                 break;
             case "Quit":
                 connection.end();
@@ -177,10 +177,8 @@ async function addEmployee() {                         // ADD EMPLOYEE
             choices: employeeNames
         },
     ])
-    console.log(newEmployee);
     const roleIndex = roleNames.indexOf(newEmployee.role);
     const managerIndex = employeeNames.indexOf(newEmployee.manager);
-    console.log(roleIndex, managerIndex);
 
     let manager;
 
@@ -191,6 +189,54 @@ async function addEmployee() {                         // ADD EMPLOYEE
     };
 
     connection.query("INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [newEmployee.firstName, newEmployee.lastName, roles[roleIndex].id, manager], (err, data) => {
+        if (err) throw err;
+        viewEmployees();
+    })
+}
+
+// UPDATE FUNCTIONS --------------------------------------------------------------
+
+async function updateEmployeeRole(){
+    const employees = await new Promise(resolve => {
+        connection.query("SELECT * FROM employees", function (err, results) {
+        if (err) throw err;
+        resolve(results);
+        })
+    })
+    let employeeNames = [];
+    employees.forEach(element => {
+        employeeNames.push(element.first_name + " " + element.last_name);
+    });
+    const roles = await new Promise(resolve => {
+        connection.query("SELECT * FROM roles", function (err, results) {
+        if (err) throw err;
+        resolve(results);
+        })
+    })
+    let roleNames = [];
+    roles.forEach(element => {
+        roleNames.push(element.title);
+    });
+
+
+    const employeeUpdate = await inquirer.prompt([
+        {
+            name: "employee",
+            type: "list",
+            message: "Employee to update: ",
+            choices: employeeNames
+        },
+        {
+            name: "role",
+            type: "list",
+            message: "New role: ",
+            choices: roleNames
+        }
+    ])
+    const roleIndex = roleNames.indexOf(employeeUpdate.role);
+    const employeeIndex = employeeNames.indexOf(employeeUpdate.employee);
+
+    connection.query("UPDATE employees SET role_id = ? WHERE id = ?", [roleNames[roleIndex].id, employeeNames[employeeIndex].id], (err, data) => {
         if (err) throw err;
         viewEmployees();
     })
