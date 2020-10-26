@@ -233,10 +233,12 @@ async function updateEmployeeRole(){
             choices: roleNames
         }
     ])
+    console.log(employeeUpdate.employee, employeeUpdate.role);
     const roleIndex = roleNames.indexOf(employeeUpdate.role);
     const employeeIndex = employeeNames.indexOf(employeeUpdate.employee);
+    console.log(roleNames[roleIndex].id, employeeNames[employeeIndex].id)
 
-    connection.query("UPDATE employees SET role_id = ? WHERE id = ?", [roleNames[roleIndex].id, employeeNames[employeeIndex].id], (err, data) => {
+    connection.query("UPDATE employees SET role_id = ? WHERE id = ?", [roles[roleIndex].id, employees[employeeIndex].id], (err, data) => {
         if (err) throw err;
         viewEmployees();
     })
