@@ -15,3 +15,4 @@ This command line application gives business owners the ability to view and mana
 * Express.js
 * MySQL
 
+![Screenshot](screenshot.png)
