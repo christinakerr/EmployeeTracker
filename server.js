@@ -55,7 +55,7 @@ function start() {
 
 // VIEW FUNCTIONS -------------------------------------------------------------
 function viewDepartments() {
-    connection.query("SELECT name FROM departments", function (err, results) {
+    connection.query("SELECT name FROM departments ORDER BY id", function (err, results) {
         if (err) throw err;
         console.table(results);
         start();
@@ -63,7 +63,7 @@ function viewDepartments() {
 };
 
 function viewRoles() {
-    connection.query("SELECT title, salary, department_id FROM roles", function (err, results) {
+    connection.query("SELECT title, salary, department_id FROM roles ORDER BY id", function (err, results) {
         if (err) throw err;
         console.table(results);
         start();
@@ -71,7 +71,7 @@ function viewRoles() {
 };
 
 function viewEmployees() {
-    connection.query("SELECT employees.id, first_name, last_name, title, salary FROM employees INNER JOIN roles ON employees.role_id=roles.id", function (err, results) {
+    connection.query("SELECT employees.id, first_name, last_name, title, salary FROM employees INNER JOIN roles ON employees.role_id=roles.id ORDER BY id", function (err, results) {
         if (err) throw err;
         console.table(results);
         start();
