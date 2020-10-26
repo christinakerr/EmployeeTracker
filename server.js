@@ -152,7 +152,6 @@ async function addEmployee() {                         // ADD EMPLOYEE
         employeeNames.push(element.first_name + " " + element.last_name);
     });
     employeeNames.push("N/A");
-    console.log(roleNames, employeeNames);
     const newEmployee = await inquirer.prompt([
         {
             name: "firstName",
